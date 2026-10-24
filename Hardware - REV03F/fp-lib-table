@@ -1,1 +1,0 @@
-(fp_lib_table (lib (name "CBM_HAT") (type "KiCad") (uri "${KIPRJMOD}/CBM_HAT.pretty") (options "") (descr "Custom preliminary CBM IEEE-488 footprints")))

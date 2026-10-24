@@ -1,9 +1,0 @@
-REV03D (PCB only, starting from the user's REV03C board after Update PCB from Schematic)
-- Edge.Cuts: 65.0 x 71.5 mm, R3 corners, x 40.0-105.0, y 55.0-126.5 = standard 65 x 56.5 HAT + 15 mm extension on the J1 (GPIO header) side.
-- H1-H4 M2.5 NPTH holes at (43.5,73.5) (101.5,73.5) (43.5,122.5) (101.5,122.5): 58 x 49 mm Pi pattern. Attribute "Not in schematic" so Update PCB from Schematic keeps them.
-- J1: pad 1 at (48.37, 74.77), rotation 90 (standard HAT header position).
-- J2: on the new top edge, centred over J1 (origin 72.50, 55.00). Pads 2.6 x 10 mm, 3.96 mm pitch, 0.5 mm from the edge (y 55.5-65.5). 1-12 on B.Cu, A-N on F.Cu, pin 1/A at the right in top view (correct for the upside-down HAT).
-- Routing channel between J2 and J1: y 65.5-71.4 (5.9 mm).
-- Dwgs.User: standard HAT top edge line and the Raspberry Pi 85 x 56 outline for reference.
-- Library: J2.kicad_mod rewritten to match; MountingHole_2.75_NPTH marked board_only.
-- No nets changed (pad-to-net map identical to the uploaded board).
