@@ -1,0 +1,78 @@
+# For more options and information see
+# http://rptl.io/configtxt
+# Some settings may impact device functionality. See link above for details
+
+# Uncomment some or all of these to enable the optional hardware interfaces
+#dtparam=i2c_arm=on
+#dtparam=i2s=on
+#dtparam=spi=on
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=on
+
+# Additional overlays and parameters are documented
+# /boot/firmware/overlays/README
+
+# Automatically load overlays for detected cameras
+camera_auto_detect=1
+
+# Automatically load overlays for detected DSI displays
+display_auto_detect=1
+
+# Automatically load initramfs files, if found
+auto_initramfs=1
+
+# Enable DRM VC4 V3D driver
+dtoverlay=vc4-kms-v3d
+max_framebuffers=2
+
+# Don't have the firmware create an initial video= setting in cmdline.txt.
+# Use the kernel's default instead.
+disable_fw_kms_setup=1
+
+# Run in 64-bit mode
+arm_64bit=1
+
+# Disable compensation for displays with overscan
+disable_overscan=1
+
+# Run as fast as firmware / board allows
+arm_boost=1
+
+[cm4]
+# Enable host mode on the 2711 built-in XHCI USB controller.
+# This line should be removed if the legacy DWC2 controller is required
+# (e.g. for USB device mode) or if USB support is not required.
+otg_mode=1
+
+[cm5]
+dtoverlay=dwc2,dr_mode=host
+
+[pi5]
+dtoverlay=nospi10
+
+# CBM 4032 IEEE-488 HAT (REV03F) - append to /boot/firmware/config.txt
+# Driver brief, section 7. Applies to Pi 4 and Pi 5.
+# Comments stay on their own lines: config.txt has no trailing comments.
+
+[all]
+# Free the bus pins: GPIO14/15 (GPIO15 is NRFD), GPIO8-11 (SPI0)
+enable_uart=0
+dtparam=spi=off
+dtparam=audio=off
+# Do not add: dtoverlay=w1-gpio (GPIO4 = DAV), any I2S/PCM/PWM overlay on
+# GPIO18-21, or a GPCLK overlay on GPIO4.
+
+# Safe state from the first firmware stage (matches the board pulls):
+# U3 disabled, no talk enable requested, ATNA idle, NRFD/NDAC/SRQ released
+gpio=8=op,dh
+gpio=9,11=ip,pd
+gpio=16=ip,pu
+gpio=15,18,23=ip,pu
+
+# Optional: keep DIO1-8 from floating while U3 is disabled (no effect on the bus)
+gpio=5,12,13,17,19,20,21,26=ip,pu
+
+
+# rt kernel
+kernel=kernel8_rtnohz.img
