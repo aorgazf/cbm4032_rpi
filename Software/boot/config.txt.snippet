@@ -1,0 +1,21 @@
+# CBM 4032 IEEE-488 HAT (REV03F) - append to /boot/firmware/config.txt
+# Driver brief, section 7. Applies to Pi 4 and Pi 5.
+# Comments stay on their own lines: config.txt has no trailing comments.
+
+[all]
+# Free the bus pins: GPIO14/15 (GPIO15 is NRFD), GPIO8-11 (SPI0)
+enable_uart=0
+dtparam=spi=off
+dtparam=audio=off
+# Do not add: dtoverlay=w1-gpio (GPIO4 = DAV), any I2S/PCM/PWM overlay on
+# GPIO18-21, or a GPCLK overlay on GPIO4.
+
+# Safe state from the first firmware stage (matches the board pulls):
+# U3 disabled, no talk enable requested, ATNA idle, NRFD/NDAC/SRQ released
+gpio=8=op,dh
+gpio=9,11=ip,pd
+gpio=16=ip,pu
+gpio=15,18,23=ip,pu
+
+# Optional: keep DIO1-8 from floating while U3 is disabled (no effect on the bus)
+gpio=5,12,13,17,19,20,21,26=ip,pu

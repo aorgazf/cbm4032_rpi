@@ -1,0 +1,4 @@
+04: embedded CBM_HAT:AND08 Value "XOR86" -> "AND08" (matches library; clears lib_symbol_mismatch)
+04: embedded CBM_HAT:OD06 Value "INV04" -> "OD06" (matches library; clears lib_symbol_mismatch)
+fp J2: pads 1-12 moved to B.Cu/B.Mask, A-N to F.Cu/F.Mask (positions unchanged); silk labels 1/12 (bottom), A/N (top)
+root: rev -> 0.3C

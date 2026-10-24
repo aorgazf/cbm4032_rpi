@@ -1,0 +1,43 @@
+02: paper A4 -> A3 (room for R20-R27)
+02: global labels D1_5V..D8_5V placed on existing U1-U3 wires at x=177.8
+02: added R20 10k (C17414) D1_5V -> 5V_HAT
+02: added R21 10k (C17414) D2_5V -> 5V_HAT
+02: added R22 10k (C17414) D3_5V -> 5V_HAT
+02: added R23 10k (C17414) D4_5V -> 5V_HAT
+02: added R24 10k (C17414) D5_5V -> 5V_HAT
+02: added R25 10k (C17414) D6_5V -> 5V_HAT
+02: added R26 10k (C17414) D7_5V -> 5V_HAT
+02: added R27 10k (C17414) D8_5V -> 5V_HAT
+R1: Value -> 0805W8F4701T5E
+R1: LCSC -> C17673
+U3: Value -> SN74LVC8T245PWR
+U3: LCSC -> C27643
+02: embedded SN75160B symbol pin 11 renamed 11/GND -> 11/PE=GND
+R3: Value -> 0805W8F4701T5E
+R3: LCSC -> C17673
+U13: Value -> 74LVC1G04GV,125
+U13: LCSC -> C12509
+U18: Value -> 74LVC1G04GV,125
+U18: LCSC -> C12509
+U19: Value -> 74LVC1G04GV,125
+U19: LCSC -> C12509
+U15: Value -> CAT24C32WI-GT3
+U15: LCSC -> C81193
+05: added C29 100nF (C1711) 5V_HAT-GND
+05: added C30 100nF (C1711) 5V_HAT-GND
+05: added C31 100nF (C1711) 5V_HAT-GND
+05: added C32 100nF (C1711) 5V_HAT-GND
+05: added C33 100nF (C1711) 5V_HAT-GND
+05: added C34 100nF (C1711) 5V_HAT-GND
+root: rev -> 0.3A
+lib: SN75160B pin 11 renamed 11/GND -> 11/PE=GND
+fp DIP20: mirrored about X (was bottom view); silk pin-1 dot + courtyard added
+fp J1: mirrored about Y (pin 2 now +2.54 mm, matches Pi top view)
+fp SOT23_5: pad numbering corrected (1,2,3 left; 4,5 right); pads 1.2x0.6 at +/-1.15
+fp SOT23_6: pads enlarged 0.85x0.65@1.12 -> 1.2x0.6@1.15 (numbering unchanged, was correct)
+fp SOT353: pad numbering corrected (1,2,3 left; 4,5 right)
+fp TSSOP24: pads 1.45x0.35@+/-3.25 -> 1.5x0.45@+/-2.9 (TI PW0024A example land pattern)
+fp SOT363.kicad_mod: silk pin-1 dot + courtyard added (pads unchanged)
+fp SOP8.kicad_mod: silk pin-1 dot + courtyard added (pads unchanged)
+fp MountingHole_2.75_NPTH: added to library (PCB referenced it but library lacked it)
+pcb: H3/H4 y 129.0 -> 128.5 (hole pitch 49.5 -> 49.0 mm, Pi 58x49 pattern)

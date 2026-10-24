@@ -1,0 +1,53 @@
+04: deleted ['U12', 'U13', 'U14', 'U16', 'U17', 'U19'] and 57 orphaned wires/labels/junctions/NC flags
+04: paper A3 -> A2
+04: added U20/U21 74LVC1G08 (TE gating), U22 74LVC1G86 (ATN xor ATNA), U23 74LVC1G06 OD (NDAC hold)
+04: R28/R29 10k pull-downs on CTRL_TE_REQ/DATA_TE_REQ, R30 10k pull-up on ATNA
+04: R32-R41 330R series: Pi GPIO4,22,5,12,13,19,20,21,26,17 -> *_R translator side
+03 (U4/U7/U8 DIR: ATN/REN/IFC always receive): label NOT_DC -> GND (x3)
+03 (U6 DIR: SRQ always transmit): label GPIO10 -> 3V3 (x1)
+03 (U5 DIR = gated TE): label EOI_DIR -> CTRL_TE (x1)
+03 (U9 A): label GPIO4 -> GPIO4_R (x1)
+03 (U5 A): label GPIO22 -> GPIO22_R (x1)
+U4: Value -> SN74LVC1T45DB(LX)
+U4: LCSC -> C22469931
+U5: Value -> SN74LVC1T45DB(LX)
+U5: LCSC -> C22469931
+U6: Value -> SN74LVC1T45DB(LX)
+U6: LCSC -> C22469931
+U7: Value -> SN74LVC1T45DB(LX)
+U7: LCSC -> C22469931
+U8: Value -> SN74LVC1T45DB(LX)
+U8: LCSC -> C22469931
+U9: Value -> SN74LVC1T45DB(LX)
+U9: LCSC -> C22469931
+U10: Value -> SN74LVC1T45DB(LX)
+U10: LCSC -> C22469931
+U11: Value -> SN74LVC1T45DB(LX)
+U11: LCSC -> C22469931
+02 (U3 A): label GPIO5 -> GPIO5_R (x1)
+02 (U3 A): label GPIO12 -> GPIO12_R (x1)
+02 (U3 A): label GPIO13 -> GPIO13_R (x1)
+02 (U3 A): label GPIO19 -> GPIO19_R (x1)
+02 (U3 A): label GPIO20 -> GPIO20_R (x1)
+02 (U3 A): label GPIO21 -> GPIO21_R (x1)
+02 (U3 A): label GPIO26 -> GPIO26_R (x1)
+02 (U3 A): label GPIO17 -> GPIO17_R (x1)
+U3: Value -> NCA8T245-DTSXR
+U3: LCSC -> C40086844
+01 (J1.23 GPIO11): label CTRL_TE -> CTRL_TE_REQ (x1)
+01 (J1.21 GPIO9): label DATA_TE -> DATA_TE_REQ (x1)
+01: J1.36 (GPIO16) no-connect removed, net ATNA added
+U15: Value -> 24C32BN(XBLW)
+U15: LCSC -> C18723546
+F1: Value -> 1206L050/6NR
+F1: LCSC -> C7542942
+R8: Value -> 0805W8F3901T5E
+R8: LCSC -> C17614
+R9: Value -> 0805W8F3901T5E
+R9: LCSC -> C17614
+U18: Value -> 74LVC1G04GV
+U18: LCSC -> C19829589
+05: 32 capacitors -> JLCPCB Basic parts
+01: 2 capacitors -> JLCPCB Basic parts
+root: rev -> 0.3B
+lib: AND08 (from XOR86 pinout) and OD06 (from INV04 pinout) symbols added
