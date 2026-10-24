@@ -16,7 +16,7 @@ int main(int argc, char **argv)
         if (!strcmp(argv[i], "--check")) check = 1;
         else if (!strcmp(argv[i], "--backend") && i + 1 < argc) kind = gpio_kind_from_name(argv[++i]);
         else {
-            puts("usage: hat_safe [--check] [--backend auto|bcm2711|rp1|sim]");
+            puts("usage: hat_safe [--check] [--backend auto|rp1|sim]");
             return 2;
         }
     }

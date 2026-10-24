@@ -12,7 +12,7 @@ LDFLAGS += -pthread
 PREFIX  ?= /usr/local
 BUILD   ?= build
 
-LIB_SRC := src/gpio_backend.c src/gpio_bcm2711.c src/gpio_rp1.c src/gpio_sim.c \
+LIB_SRC := src/gpio_backend.c src/gpio_rp1.c src/gpio_sim.c \
            src/hat_board.c src/rt_util.c src/bus_monitor.c
 LIB_OBJ := $(LIB_SRC:src/%.c=$(BUILD)/%.o)
 TOOLS   := hat_bench hat_selftest hat_monitor hat_safe

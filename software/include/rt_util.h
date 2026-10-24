@@ -27,7 +27,7 @@ int rt_setup_thread(int cpu, int prio);
  */
 void rt_check_environment(FILE *f, int cpu, int prio);
 
-/* Timestamp counter: the ARM generic timer on arm64 (54 MHz on BCM2711 and BCM2712),
+/* Timestamp counter: the ARM generic timer on arm64 (54 MHz on BCM2712),
  * CLOCK_MONOTONIC_RAW nanoseconds elsewhere. */
 #if defined(__aarch64__)
 static inline uint64_t rt_ticks(void)

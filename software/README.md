@@ -1,6 +1,6 @@
 # CBM 4032 IEEE-488 HAT software
 
-Raspberry Pi 4 / Pi 5 software for the REV03F IEEE-488 HAT. This is **stage 1** of the driver brief: bring-up tools. Stage 2 (bus engine) and stage 3 (disk-drive emulation) start once stage 1 has been accepted on real hardware.
+Raspberry Pi 5 software for the REV03F IEEE-488 HAT. The Pi 4 is not supported: it was dropped after the stage 1 latency work, which was done on the Pi 5 RP1 backend and a custom real-time kernel. This is **stage 1** of the driver brief: bring-up tools. Stage 2 (bus engine) and stage 3 (disk-drive emulation) start once stage 1 has been accepted on real hardware.
 
 Language: C11, plain Makefile, no dependencies beyond libc and pthreads. (The brief leaves the language open; C was chosen for direct register access and timing.)
 
@@ -9,7 +9,7 @@ Language: C11, plain Makefile, no dependencies beyond libc and pthreads. (The br
 | Path | What |
 | --- | --- |
 | `include/hat_pins.h` | GPIO map from the REV03F netlist, masks, DIO gather/spread |
-| `include/gpio_backend.h`, `src/gpio_*.c` | One GPIO API with three backends: `bcm2711` (Pi 4, `/dev/gpiomem`), `rp1` (Pi 5, `/dev/gpiomem0`), and `sim` (a software model of the board for tests) |
+| `include/gpio_backend.h`, `src/gpio_*.c` | One GPIO API with two backends: `rp1` (Pi 5, `/dev/gpiomem0`) and `sim` (a software model of the board for tests) |
 | `include/hat_board.h`, `src/hat_board.c` | Safe state, configuration, and the role changes of brief section 5 |
 | `include/rt_util.h`, `src/rt_util.c` | CPU pinning, SCHED\_FIFO, timestamp counter, system checks |
 | `src/bus_monitor.c` | Busy-poll capture loop, with an optional listener-acknowledge mode |
@@ -32,7 +32,7 @@ make && make test && sudo make install
 
 Cross-compiling from another Linux machine: `make CC=aarch64-linux-gnu-gcc AR=aarch64-linux-gnu-ar`. Every tool also runs on any Linux host with `--backend sim`.
 
-The tools need access to `/dev/gpiomem` (Pi 4) or `/dev/gpiomem0` (Pi 5). The `gpio` group has it, but SCHED\_FIFO and `mlockall` need root, so run them with `sudo`.
+The tools need access to `/dev/gpiomem0`. The `gpio` group has it, but SCHED\_FIFO and `mlockall` need root, so run them with `sudo`.
 
 ## Tools
 
@@ -54,7 +54,7 @@ Every tool returns the board to the safe state when it exits, when it gets SIGIN
 
 Do the steps in order. Stop at the first failure and report it with the tool output, plus a photo or analyser trace (brief, section 9).
 
-1. **Pi without the HAT.** Install the RT kernel and apply `boot/` settings ([boot/README.md](boot/README.md)), reboot, run `sudo hat_rt_setup`. Run `sudo hat_bench` on the Pi 4 and the Pi 5, and keep both outputs: they are the benchmark deliverable. The poll-gap result must say PASS.
+1. **Pi without the HAT.** Build the RT kernel (`boot/build_kernel.sh`) and apply `boot/` settings ([boot/README.md](boot/README.md)), reboot, run `sudo hat_rt_setup`. Run `sudo hat_bench` and keep the output: it is the benchmark deliverable. The poll-gap result must say PASS.
 2. **HAT on the Pi, not on the PET.** Run `sudo hat_safe --check`, then `sudo hat_selftest`. All checks should pass.
 3. Run `sudo hat_selftest --probe` with a jumper wire. Phase 1 touches every listed contact. Phase 2 touches only contact 11. Phase 3 touches only contacts 7 and 8 (DAV/EOI are being driven then).
 4. Run `sudo hat_selftest --manual` with a meter or logic analyser on J2.

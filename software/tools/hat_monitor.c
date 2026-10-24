@@ -46,7 +46,7 @@ static void usage(void)
          "  --duration S    stop after S seconds (default: until Ctrl-C)\n"
          "  --cpu N         CPU for the poll loop (default: isolated CPU, else last)\n"
          "  --prio N        SCHED_FIFO priority (default 80, 0 = SCHED_OTHER)\n"
-         "  --backend B     auto | bcm2711 | rp1 | sim");
+         "  --backend B     auto | rp1 | sim");
 }
 
 int main(int argc, char **argv)

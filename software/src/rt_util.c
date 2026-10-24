@@ -65,6 +65,21 @@ static int cmdline_param(const char *name, char *val, size_t n)
     return 0;
 }
 
+/* Is cpu in a sysfs CPU list such as "3", "2-3" or "1,3"? */
+static int cpu_in_list(const char *list, int cpu)
+{
+    const char *p = list;
+    while (*p >= '0' && *p <= '9') {
+        char *end;
+        long lo = strtol(p, &end, 10), hi = lo;
+        if (*end == '-') hi = strtol(end + 1, &end, 10);
+        if (cpu >= lo && cpu <= hi) return 1;
+        if (*end != ',') break;
+        p = end + 1;
+    }
+    return 0;
+}
+
 /* SCHED_FIFO/RR priority of the kernel thread called name: 0 if not RT, -1 if absent */
 static int kthread_prio(const char *name)
 {
@@ -101,20 +116,19 @@ void rt_check_environment(FILE *f, int cpu, int prio)
     int rt = uname(&u) == 0 && strstr(u.version, "PREEMPT_RT");
     if (!rt)
         fprintf(f, "warning: kernel is not PREEMPT_RT; timer and RCU work stalls the poll loop for "
-                   "30-50 us (install linux-image-rpi-v8-rt, see boot/README.md)\n");
+                   "30-50 us (build the kernel with boot/build_kernel.sh)\n");
 
     /* The sysfs file only exists when the kernel was built with NO_HZ_FULL */
-    int nohz_full = read_line("/sys/devices/system/cpu/nohz_full", buf, sizeof buf) == 0 &&
-                    buf[0] >= '0' && buf[0] <= '9';
-    if (!nohz_full) {
-        if (cmdline_param("nohz_full", NULL, 0))
-            fprintf(f, "warning: nohz_full= is on the kernel command line, but this kernel has no "
-                       "NO_HZ_FULL and ignores it%s; remove it\n",
-                    cmdline_param("rcu_nocbs", NULL, 0) ? " (rcu_nocbs= very likely too)" : "");
-        /* Tickless idle hands idle CPUs' timers to the one busy CPU, which then keeps them */
-        if (!cmdline_param("nohz", buf, sizeof buf) || strcmp(buf, "off"))
-            fprintf(f, "warning: nohz=off missing from the kernel command line; driver polls "
-                       "migrate to the bus CPU and stall it for 20-40 us (see boot/README.md)\n");
+    if (read_line("/sys/devices/system/cpu/nohz_full", buf, sizeof buf) < 0)
+        fprintf(f, "warning: kernel built without NO_HZ_FULL; the bus CPU keeps its tick, which "
+                   "stalls the poll loop for 20-50 us under load (build the kernel with "
+                   "boot/build_kernel.sh)\n");
+    else if (cpu >= 0 && !cpu_in_list(buf, cpu)) {
+        char v[16];
+        int nohz_off = cmdline_param("nohz", v, sizeof v) && !strcmp(v, "off");
+        fprintf(f, "warning: CPU %d is not in nohz_full (add nohz_full=%d rcu_nocbs=%d to "
+                   "cmdline.txt%s, see boot/README.md)\n", cpu, cpu, cpu,
+                nohz_off ? " and remove nohz=off" : "");
     }
 
     /* On PREEMPT_RT these per-CPU threads must outrank the bus thread or they starve */

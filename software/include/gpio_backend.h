@@ -1,7 +1,6 @@
 /*
- * GPIO backend: one API over the BCM2711 GPIO block (Pi 4, /dev/gpiomem) and
- * the RP1 IO_BANK0 / SYS_RIO / PADS_BANK0 blocks (Pi 5, /dev/gpiomem0), plus
- * a software model of the HAT for tests ("sim").
+ * GPIO backend: one API over the RP1 IO_BANK0 / SYS_RIO / PADS_BANK0 blocks
+ * (Pi 5, /dev/gpiomem0), plus a software model of the HAT for tests ("sim").
  *
  * Only GPIO 0..27 (header bank) are handled; masks are bit n = GPIO n.
  *
@@ -18,7 +17,6 @@ typedef enum { GPIO_PULL_NONE = 0, GPIO_PULL_UP = 1, GPIO_PULL_DOWN = 2 } gpio_p
 
 typedef enum {
     GPIO_BACKEND_AUTO = 0,
-    GPIO_BACKEND_BCM2711,
     GPIO_BACKEND_RP1,
     GPIO_BACKEND_SIM,
 } gpio_backend_kind_t;
@@ -50,7 +48,7 @@ struct gpio_backend {
 };
 
 /* Open a backend. AUTO picks from /proc/device-tree/compatible, or the
- * HAT_BACKEND environment variable (bcm2711 | rp1 | sim). Returns NULL and
+ * HAT_BACKEND environment variable (rp1 | sim). Returns NULL and
  * prints the reason on failure. */
 gpio_backend_t *gpio_open(gpio_backend_kind_t kind);
 gpio_backend_kind_t gpio_kind_from_name(const char *name); /* -1 if unknown */
@@ -79,7 +77,6 @@ static inline void gpio_write(gpio_backend_t *b, uint32_t set_mask, uint32_t clr
 }
 
 /* Backend constructors (gpio_open() dispatches to these) */
-gpio_backend_t *gpio_bcm2711_open(void);
 gpio_backend_t *gpio_rp1_open(void);
 gpio_backend_t *gpio_sim_open(void);
 

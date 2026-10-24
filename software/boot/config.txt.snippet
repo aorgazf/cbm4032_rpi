@@ -1,11 +1,11 @@
 # CBM 4032 IEEE-488 HAT (REV03F) - append to /boot/firmware/config.txt
-# Driver brief, section 7. Applies to Pi 4 and Pi 5.
+# Driver brief, section 7. Raspberry Pi 5 only.
 # Comments stay on their own lines: config.txt has no trailing comments.
 
 [all]
-# PREEMPT_RT kernel (sudo apt install linux-image-rpi-v8-rt), Pi 4 and Pi 5.
-# See README.md: the stock kernel stalls the poll loop on CPU 3.
-kernel=kernel8_rt.img
+# PREEMPT_RT + NO_HZ_FULL kernel built by build_kernel.sh.
+# See README.md: the stock and packaged RT kernels stall the poll loop on CPU 3.
+kernel=kernel8_rtnohz.img
 
 # Free the bus pins: GPIO14/15 (GPIO15 is NRFD), GPIO8-11 (SPI0)
 enable_uart=0

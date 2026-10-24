@@ -22,7 +22,6 @@ void hat_pins_init(void)
 gpio_backend_kind_t gpio_kind_from_name(const char *name)
 {
     if (!name || !strcmp(name, "auto")) return GPIO_BACKEND_AUTO;
-    if (!strcmp(name, "bcm2711") || !strcmp(name, "pi4")) return GPIO_BACKEND_BCM2711;
     if (!strcmp(name, "rp1") || !strcmp(name, "pi5")) return GPIO_BACKEND_RP1;
     if (!strcmp(name, "sim")) return GPIO_BACKEND_SIM;
     return (gpio_backend_kind_t)-1;
@@ -31,7 +30,6 @@ gpio_backend_kind_t gpio_kind_from_name(const char *name)
 const char *gpio_kind_name(gpio_backend_kind_t kind)
 {
     switch (kind) {
-    case GPIO_BACKEND_BCM2711: return "bcm2711";
     case GPIO_BACKEND_RP1: return "rp1";
     case GPIO_BACKEND_SIM: return "sim";
     default: return "auto";
@@ -50,7 +48,6 @@ static gpio_backend_kind_t detect(void)
     buf[n] = 0;
     for (size_t i = 0; i < n; i += strlen(buf + i) + 1) {
         if (!strcmp(buf + i, "brcm,bcm2712")) return GPIO_BACKEND_RP1;
-        if (!strcmp(buf + i, "brcm,bcm2711")) return GPIO_BACKEND_BCM2711;
     }
     return GPIO_BACKEND_AUTO;
 }
@@ -71,11 +68,10 @@ gpio_backend_t *gpio_open(gpio_backend_kind_t kind)
     if (kind == GPIO_BACKEND_AUTO)
         kind = detect();
     switch (kind) {
-    case GPIO_BACKEND_BCM2711: return gpio_bcm2711_open();
     case GPIO_BACKEND_RP1: return gpio_rp1_open();
     case GPIO_BACKEND_SIM: return gpio_sim_open();
     default:
-        fprintf(stderr, "Not a Raspberry Pi 4 or 5 (no brcm,bcm2711/2712 in device tree); "
+        fprintf(stderr, "Not a Raspberry Pi 5 (no brcm,bcm2712 in device tree); "
                         "use --backend sim to test without hardware\n");
         return NULL;
     }

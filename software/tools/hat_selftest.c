@@ -386,7 +386,7 @@ int main(int argc, char **argv)
         case 'b': kind = gpio_kind_from_name(optarg); break;
         default:
             puts("usage: hat_selftest [--auto | --probe | --manual | --read-only [--watch] [--rx]]\n"
-                 "                    [--force] [--backend auto|bcm2711|rp1|sim]");
+                 "                    [--force] [--backend auto|rp1|sim]");
             return o == 'h' ? 0 : 2;
         }
     }
