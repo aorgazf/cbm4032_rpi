@@ -1,0 +1,4 @@
+# Files that run on the Pi keep LF even in a Windows checkout:
+# a CRLF shebang or recipe line breaks them there.
+*.sh     text eol=lf
+Makefile text eol=lf
