@@ -43,6 +43,7 @@ test: $(BUILD)/test_hat $(BUILD)/hat_selftest $(BUILD)/hat_safe
 install: $(BINS)
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(BINS) $(DESTDIR)$(PREFIX)/bin
+	install -m 755 boot/rt_setup.sh $(DESTDIR)$(PREFIX)/bin/hat_rt_setup
 
 clean:
 	rm -rf $(BUILD)

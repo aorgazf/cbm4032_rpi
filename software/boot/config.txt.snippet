@@ -3,6 +3,10 @@
 # Comments stay on their own lines: config.txt has no trailing comments.
 
 [all]
+# PREEMPT_RT kernel (sudo apt install linux-image-rpi-v8-rt), Pi 4 and Pi 5.
+# See README.md: the stock kernel stalls the poll loop on CPU 3.
+kernel=kernel8_rt.img
+
 # Free the bus pins: GPIO14/15 (GPIO15 is NRFD), GPIO8-11 (SPI0)
 enable_uart=0
 dtparam=spi=off

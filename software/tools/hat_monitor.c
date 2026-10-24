@@ -89,7 +89,7 @@ int main(int argc, char **argv)
     mon_ring_t *ring = calloc(1, sizeof *ring);
     mon_ctx_t mon = { .g = g, .ring = ring, .stop = &stop, .ack = ack, .device = device };
     poll_args_t pa = { .mon = &mon, .cpu = cpu, .prio = prio };
-    rt_check_environment(stderr, cpu < 0 ? rt_isolated_cpu() : cpu);
+    rt_check_environment(stderr, cpu < 0 ? rt_isolated_cpu() : cpu, prio);
     fprintf(stderr, "hat_monitor: backend %s, %s mode%s; Ctrl-C to stop\n", g->name,
             ack ? "ack" : "passive", ack ? "" : " (the PET will time out after the first byte)");
     if (ack) fprintf(stderr, "hat_monitor: listening as device %d\n", device);

@@ -54,7 +54,7 @@ Every tool returns the board to the safe state when it exits, when it gets SIGIN
 
 Do the steps in order. Stop at the first failure and report it with the tool output, plus a photo or analyser trace (brief, section 9).
 
-1. **Pi without the HAT.** Apply `boot/` settings, reboot. Run `sudo hat_bench` on the Pi 4 and the Pi 5, and keep both outputs: they are the benchmark deliverable. The poll-gap result must say PASS.
+1. **Pi without the HAT.** Install the RT kernel and apply `boot/` settings ([boot/README.md](boot/README.md)), reboot, run `sudo hat_rt_setup`. Run `sudo hat_bench` on the Pi 4 and the Pi 5, and keep both outputs: they are the benchmark deliverable. The poll-gap result must say PASS.
 2. **HAT on the Pi, not on the PET.** Run `sudo hat_safe --check`, then `sudo hat_selftest`. All checks should pass.
 3. Run `sudo hat_selftest --probe` with a jumper wire. Phase 1 touches every listed contact. Phase 2 touches only contact 11. Phase 3 touches only contacts 7 and 8 (DAV/EOI are being driven then).
 4. Run `sudo hat_selftest --manual` with a meter or logic analyser on J2.

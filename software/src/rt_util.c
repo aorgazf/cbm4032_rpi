@@ -1,12 +1,14 @@
 #define _GNU_SOURCE
 #include "rt_util.h"
 
+#include <dirent.h>
 #include <errno.h>
 #include <pthread.h>
 #include <sched.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/utsname.h>
 #include <unistd.h>
 
 static int read_line(const char *path, char *buf, size_t n)
@@ -49,21 +51,94 @@ int rt_setup_thread(int cpu, int prio)
     return cpu;
 }
 
-void rt_check_environment(FILE *f, int cpu)
+/* Is name (bare or name=value) on the kernel command line? Copies the value. */
+static int cmdline_param(const char *name, char *val, size_t n)
+{
+    char buf[4096];
+    if (read_line("/proc/cmdline", buf, sizeof buf) < 0) return 0;
+    size_t len = strlen(name);
+    for (char *tok = strtok(buf, " "); tok; tok = strtok(NULL, " ")) {
+        if (strncmp(tok, name, len) || (tok[len] && tok[len] != '=')) continue;
+        if (val) snprintf(val, n, "%s", tok[len] ? tok + len + 1 : "");
+        return 1;
+    }
+    return 0;
+}
+
+/* SCHED_FIFO/RR priority of the kernel thread called name: 0 if not RT, -1 if absent */
+static int kthread_prio(const char *name)
+{
+    DIR *d = opendir("/proc");
+    if (!d) return -1;
+    int prio = -1;
+    struct dirent *e;
+    char path[300], comm[32];
+    while ((e = readdir(d))) {
+        if (e->d_name[0] < '1' || e->d_name[0] > '9') continue;
+        snprintf(path, sizeof path, "/proc/%s/comm", e->d_name);
+        if (read_line(path, comm, sizeof comm) < 0 || strcmp(comm, name)) continue;
+        pid_t pid = (pid_t)atoi(e->d_name);
+        int pol = sched_getscheduler(pid);
+        struct sched_param sp;
+        prio = (pol == SCHED_FIFO || pol == SCHED_RR) && sched_getparam(pid, &sp) == 0 ? sp.sched_priority : 0;
+        break;
+    }
+    closedir(d);
+    return prio;
+}
+
+void rt_check_environment(FILE *f, int cpu, int prio)
 {
     char buf[128], path[128];
     int iso = rt_isolated_cpu();
     if (iso < 0)
-        fprintf(f, "warning: no isolated CPU (add isolcpus=3 nohz_full=3 to cmdline.txt)\n");
+        fprintf(f, "warning: no isolated CPU (add isolcpus=3 to cmdline.txt, see boot/README.md)\n");
     else if (cpu >= 0 && cpu != iso)
         fprintf(f, "warning: running on CPU %d, isolated CPU is %d\n", cpu, iso);
 
+    /* Without PREEMPT_RT, timer and RCU work runs inside the tick on the bus CPU */
+    struct utsname u;
+    int rt = uname(&u) == 0 && strstr(u.version, "PREEMPT_RT");
+    if (!rt)
+        fprintf(f, "warning: kernel is not PREEMPT_RT; timer and RCU work stalls the poll loop for "
+                   "30-50 us (install linux-image-rpi-v8-rt, see boot/README.md)\n");
+
+    /* The sysfs file only exists when the kernel was built with NO_HZ_FULL */
+    int nohz_full = read_line("/sys/devices/system/cpu/nohz_full", buf, sizeof buf) == 0 &&
+                    buf[0] >= '0' && buf[0] <= '9';
+    if (!nohz_full) {
+        if (cmdline_param("nohz_full", NULL, 0))
+            fprintf(f, "warning: nohz_full= is on the kernel command line, but this kernel has no "
+                       "NO_HZ_FULL and ignores it%s; remove it\n",
+                    cmdline_param("rcu_nocbs", NULL, 0) ? " (rcu_nocbs= very likely too)" : "");
+        /* Tickless idle hands idle CPUs' timers to the one busy CPU, which then keeps them */
+        if (!cmdline_param("nohz", buf, sizeof buf) || strcmp(buf, "off"))
+            fprintf(f, "warning: nohz=off missing from the kernel command line; driver polls "
+                       "migrate to the bus CPU and stall it for 20-40 us (see boot/README.md)\n");
+    }
+
+    /* On PREEMPT_RT these per-CPU threads must outrank the bus thread or they starve */
+    if (rt && cpu >= 0 && prio > 0) {
+        static const char *const kt[][2] = {
+            { "rcuc", "RCU stalls" }, { "ktimers", "kernel timers on that CPU never fire" },
+        };
+        for (size_t i = 0; i < sizeof kt / sizeof kt[0]; i++) {
+            char name[32];
+            snprintf(name, sizeof name, "%s/%d", kt[i][0], cpu);
+            int p = kthread_prio(name);
+            if (p >= 0 && p <= prio)
+                fprintf(f, "warning: %s has RT priority %d, not above the bus thread's %d: %s "
+                           "(run sudo hat_rt_setup)\n", name, p, prio, kt[i][1]);
+        }
+    }
+
     snprintf(path, sizeof path, "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor", cpu < 0 ? 0 : cpu);
     if (read_line(path, buf, sizeof buf) == 0 && strcmp(buf, "performance"))
-        fprintf(f, "warning: CPU governor is '%s'; 'performance' avoids frequency-switch stalls\n", buf);
+        fprintf(f, "warning: CPU governor is '%s'; 'performance' avoids frequency-switch stalls "
+                   "(run sudo hat_rt_setup)\n", buf);
 
     /* With RT throttling a SCHED_FIFO busy loop is parked for 50 ms every second */
     if (read_line("/proc/sys/kernel/sched_rt_runtime_us", buf, sizeof buf) == 0 && strcmp(buf, "-1"))
         fprintf(f, "warning: kernel.sched_rt_runtime_us=%s; set it to -1 or the SCHED_FIFO "
-                   "poll loop can be throttled\n", buf);
+                   "poll loop can be throttled (run sudo hat_rt_setup)\n", buf);
 }

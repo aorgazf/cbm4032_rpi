@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     gpio_backend_t *g = gpio_open(kind);
     if (!g) return 1;
     cpu = rt_setup_thread(cpu, prio);
-    rt_check_environment(stdout, cpu);
+    rt_check_environment(stdout, cpu, prio);
     printf("backend %s, CPU %d, SCHED_FIFO %d, timer %.1f MHz, %ld iterations\n\n",
            g->name, cpu, prio, rt_tick_hz() / 1e6, n);
 

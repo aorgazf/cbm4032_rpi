@@ -20,8 +20,12 @@ int rt_isolated_cpu(void);
  */
 int rt_setup_thread(int cpu, int prio);
 
-/* Print warnings about settings that cause long stalls (governor, RT throttling, isolation) */
-void rt_check_environment(FILE *f, int cpu);
+/*
+ * Print warnings about settings that cause long stalls on the bus CPU: isolation,
+ * kernel type and command line, rcuc/ktimers priority against the bus thread's
+ * SCHED_FIFO prio (0: not checked), governor, RT throttling. See boot/README.md.
+ */
+void rt_check_environment(FILE *f, int cpu, int prio);
 
 /* Timestamp counter: the ARM generic timer on arm64 (54 MHz on BCM2711 and BCM2712),
  * CLOCK_MONOTONIC_RAW nanoseconds elsewhere. */
