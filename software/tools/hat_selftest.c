@@ -11,7 +11,8 @@
  *   --manual     HAT unplugged: steps through every output; check each J2
  *                contact with a meter or logic analyser.
  *   --read-only  PET may be on and connected: reads and decodes the lines,
- *                writes nothing (--rx enables U3 in receive direction only).
+ *                drives nothing: it only claims unclaimed pins as inputs
+ *                (--rx enables U3 in receive direction only).
  *
  * The active modes refuse to run when REN reads asserted: the PET ties REN to
  * ground, so that means the HAT is plugged into a PET (--force overrides).
@@ -395,6 +396,9 @@ int main(int argc, char **argv)
     if (!g) return 1;
     hat_signals_install(g, &stop);
     printf("hat_selftest: backend %s\n", g->name);
+    /* Pins config.txt leaves alone read 0 on RP1 until claimed (ATN, REN, IFC,
+     * DAV, EOI, GPIO10). As inputs only, so --read-only still drives nothing. */
+    g->claim_inputs(g, MASK_HAT | BIT(PIN_SPARE));
 
     if (mode == READ_ONLY) {
         run_read_only(watch, rx);

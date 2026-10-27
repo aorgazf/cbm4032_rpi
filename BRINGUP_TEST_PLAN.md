@@ -159,6 +159,8 @@ Switch off and disconnect the bench supply.
    ```
 4. Run `sudo hat_rt_setup` (after every boot), then `sudo hat_bench`, and keep the output (benchmark deliverable). It must print no warnings, and the poll-gap result must say **PASS**.
 
+**Result (Pi 5, kernel 6.18.58-v8-rt-nohzfull): PASS.** Idle 60 s runs: worst gap 5.9–7.2 µs. 5 min with CPU, SD-write and filesystem load on CPUs 0–2: worst gap 11.9 µs, 0 gaps ≥ 30 µs. In the first minutes after boot a single gap of up to 29 µs can appear. The stock and packaged RT kernels failed (30–80 µs gaps); see `software/boot/README.md`.
+
 ### 3B First power-up with the HAT
 
 1. **Pi switched off and unplugged.** Fit the HAT. Check that all 40 pins are in the socket and not offset by one row or column.
@@ -167,19 +169,19 @@ Switch off and disconnect the bench supply.
 
 | # | Measure | Expect | Got |
 | --- | --- | --- | --- |
-| 3.1 | U2 pin 20 (5V_HAT) | 4.75–5.25 V | |
-| 3.2 | J1-1 (3V3) | 3.25–3.35 V | |
+| 3.1 | U2 pin 20 (5V_HAT) | 4.75–5.25 V | 5.13 |
+| 3.2 | J1-1 (3V3) | 3.25–3.35 V | 3.31 |
 | 3.3 | Touch U1, U2, U3 after 1 min | Warm at most, not hot | |
 
 4. Run the tools in this order:
 
 | # | Command | Expect | Got |
 | --- | --- | --- | --- |
-| 3.4 | `sudo hat_safe --check` | `safe` | |
-| 3.5 | `sudo hat_selftest --auto` | All PASS (T0–T5: pulls, U3 direction, U20/U21 talk enables, U9/U5/U10/U11 direction, U22/U23 NDAC hold, SRQ) | |
-| 3.6 | `sudo hat_selftest --probe` | Phase 1: touch J2-11, E, 9, 6, 5, 1–4, A–D to ground in turn. Phase 2: touch **only** J2-11. Phase 3: touch **only** J2-7 and J2-8. All PASS. | |
-| 3.7 | `sudo hat_selftest --manual` | Meter on J2 contacts. Every step: the named contact < 0.5 V, the others ≈ 3 V. This is the only test of the talker drive (DAV, EOI, DIO1–8) onto the bus. | |
-| 3.8 | HAT EEPROM (optional): add `dtparam=i2c_vc=on` to config.txt, reboot, `sudo apt install i2c-tools`, `sudo i2cdetect -y 0` | Device at `50` | |
+| 3.4 | `sudo hat_safe --check` | `safe` | PASS |
+| 3.5 | `sudo hat_selftest --auto` | All PASS (T0–T5: pulls, U3 direction, U20/U21 talk enables, U9/U5/U10/U11 direction, U22/U23 NDAC hold, SRQ) | PASS |
+| 3.6 | `sudo hat_selftest --probe` | Phase 1: touch J2-11, E, 9, 6, 5, 1–4, A–D to ground in turn. Phase 2: touch **only** J2-11. Phase 3: touch **only** J2-7 and J2-8. All PASS. | PASS |
+| 3.7 | `sudo hat_selftest --manual` | Meter on J2 contacts. Every step: the named contact < 0.5 V, the others ≈ 3 V. This is the only test of the talker drive (DAV, EOI, DIO1–8) onto the bus. | PASS |
+| 3.8 | HAT EEPROM (optional): add `dtparam=i2c_vc=on` to config.txt, reboot, `sudo apt install i2c-tools`, `sudo i2cdetect -y 0` | Device at `50` | PASS |
 
 Shut the Pi down (`sudo poweroff`) and unplug it before going to stage 4.
 
@@ -207,8 +209,8 @@ If 4.2 isn't 0 Ω, or 4.3/4.4 are 0 Ω, the connector is reversed or offset. **D
 
 | # | Action | Expect | Got |
 | --- | --- | --- | --- |
-| 4.5 | Switch the PET on (Pi stays off) | PET boots normally to the `### COMMODORE BASIC ###` screen | |
-| 4.6 | U2 pin 20 (5V_HAT) and J1-1 (3V3) | Both below ~0.5 V: the PET must not power the HAT through the bus | |
+| 4.5 | Switch the PET on (Pi stays off) | PET boots normally to the `### COMMODORE BASIC ###` screen | OK |
+| 4.6 | U2 pin 20 (5V_HAT) and J1-1 (3V3) | Both below ~0.5 V: the PET must not power the HAT through the bus | OK |
 | 4.7 | On the PET type `LOAD"$",8` | `?DEVICE NOT PRESENT ERROR`; the PET stays usable. **This is the acceptance test of brief §8.** | |
 | 4.8 | Repeat 4.7 with a real drive on the bus, if you have one | Works normally with the HAT unpowered | |
 
@@ -218,13 +220,18 @@ Power up order: PET first, then the Pi. (Either order should be safe; this one i
 
 | # | Command / action | Expect | Got |
 | --- | --- | --- | --- |
-| 4.9 | `sudo hat_selftest --read-only` | REN asserted; ATN, IFC, DAV, EOI released | |
-| 4.10 | `sudo hat_selftest --read-only --watch --rx`, then press the PET's reset or switch it off and on | IFC pulses as the PET resets | |
-| 4.11 | `sudo hat_monitor --raw`, type `LOAD"$",8` on the PET | ATN, then `CMD $28 LISTEN 8`, then nothing (the PET times out: expected in passive mode) | |
-| 4.12 | `sudo hat_monitor --ack`, type `LOAD"$",8` | LISTEN 8, OPEN, `$` with EOI, UNLISTEN, TALK 8, DATA ch 0, then a PET timeout error. The summary shows worst-case DAV-to-NDAC-release time. | |
+| 4.9 | `sudo hat_selftest --read-only` | REN asserted; ATN, IFC, DAV, EOI released | PASS (raw 0xeffb533) |
+| 4.10 | `sudo hat_selftest --read-only --watch --rx`, then press the PET's reset or switch it off and on | IFC pulses as the PET resets | PASS: IFC pulsed at PET off and again at PET on; DATA $00 |
+| 4.11 | `sudo hat_monitor --raw`, type `LOAD"$",8` on the PET | ATN, then `CMD $28 LISTEN 8`, then nothing (the PET times out: expected in passive mode) | PASS after fixing the PET contacts: LISTEN 8, OPEN ch 0, UNLISTEN, TALK 8, DATA ch 0; each byte timed out after 66 ms |
+| 4.12 | `sudo hat_monitor --ack`, type `LOAD"$",8` | LISTEN 8, OPEN, `$` with EOI, UNLISTEN, TALK 8, DATA ch 0, then a PET timeout error. The summary shows worst-case DAV-to-NDAC-release time. | PASS: 6 bytes, max DAV-seen to NDAC-release 1.00 µs, max poll gap 23.02 µs, 0 events dropped |
 | 4.13 | Switch the Pi off with the PET running, type `LOAD"$",8` | `?DEVICE NOT PRESENT ERROR`; the PET stays usable | |
 
 When 4.12 passes, the hardware is proven in both directions on the real bus: listener in hardware and firmware, talker drive in 3.7. That's the end of hardware bring-up.
+
+Notes from the run:
+
+- **PET contacts.** At first 4.11 saw no bus activity and the PET reported `?DEVICE NOT PRESENT ERROR`. A steady ATN set from BASIC (`POKE 59456,PEEK(59456) AND 251`, release with `OR 4`) did reach the HAT, but DAV (`POKE 59427,52`, release with `POKE 59427,60`) did not. Some of the PET's IEEE-488 edge contacts were oxidised and interrupted the signals. After resoldering them and checking continuity to the HAT, 4.11 and 4.12 passed.
+- **PET timeout.** The PET held DAV for 65.6–66.0 ms before giving up on each byte in 4.11. Its handshake timeout is therefore about 65 ms, not the 64 µs assumed by `hat_bench`'s 30 µs acceptance limit. That limit should be revisited.
 
 ---
 

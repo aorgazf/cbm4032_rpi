@@ -6,6 +6,8 @@
  * wired-AND, and records contention: any GPIO the Pi drives while the board
  * drives it too. The PET side is a set of levels a test can change, plus an
  * optional hook called on every GPIO read (a step-driven PET model).
+ * Like RP1, a pin reads 0 until it is claimed; the pins config.txt sets start
+ * out claimed.
  *
  * Levels are electrical: 1 = high = released, 0 = low = asserted.
  */

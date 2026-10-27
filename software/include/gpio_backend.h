@@ -37,6 +37,10 @@ struct gpio_backend {
 
     /* Take the pins in mask under direct control (funcsel), as inputs. */
     int (*claim)(gpio_backend_t *b, uint32_t mask);
+    /* Claim, as inputs, only the pins in mask that nothing has claimed yet, so
+     * they can be read; claimed pins keep their direction. Drives nothing, so it
+     * is safe on a live bus. RP1: an unclaimed pin (no funcsel) reads 0. */
+    void (*claim_inputs)(gpio_backend_t *b, uint32_t mask);
     /* Direction. Set the output latch first (gpio_set/gpio_clr) to avoid glitches. */
     void (*make_output)(gpio_backend_t *b, uint32_t mask);
     void (*make_input)(gpio_backend_t *b, uint32_t mask);

@@ -74,6 +74,16 @@ static int rp1_claim(gpio_backend_t *b, uint32_t mask)
     return 0;
 }
 
+static void rp1_claim_inputs(gpio_backend_t *b, uint32_t mask)
+{
+    rp1_priv_t *p = b->priv;
+    uint32_t fresh = 0;
+    for (int pin = 0; pin < 28; pin++)
+        if ((mask & (1u << pin)) && (*R(IO_BANK0 + 8 * pin + 4) & CTRL_FSEL_MASK) != FSEL_SYS_RIO)
+            fresh |= 1u << pin;
+    if (fresh) rp1_claim(b, fresh);
+}
+
 static void rp1_make_output(gpio_backend_t *b, uint32_t mask)
 {
     rp1_priv_t *p = b->priv;
@@ -144,6 +154,7 @@ gpio_backend_t *gpio_rp1_open(void)
     b->read = rp1_read;
     b->write = rp1_write;
     b->claim = rp1_claim;
+    b->claim_inputs = rp1_claim_inputs;
     b->make_output = rp1_make_output;
     b->make_input = rp1_make_input;
     b->output_mask = rp1_output_mask;

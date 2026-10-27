@@ -9,6 +9,10 @@
                       BIT(PIN_SRQ) | BIT(PIN_SPARE))
 #define EXT_PULLDOWN (BIT(PIN_DATA_TE_REQ) | BIT(PIN_CTRL_TE_REQ))
 
+/* Pins the gpio= lines of boot/config.txt.snippet configure. As on RP1, every
+ * other pin has no function at boot and reads 0 until a program claims it. */
+#define BOOT_CONFIGURED (BIT(PIN_DATA_OE_N) | BIT(PIN_DATA_TE_REQ) | BIT(PIN_CTRL_TE_REQ) |                          BIT(PIN_ATNA) | BIT(PIN_NRFD) | BIT(PIN_NDAC) | BIT(PIN_SRQ) | MASK_DIO)
+
 sim_hat_t *sim_hat(gpio_backend_t *b) { return b->priv; }
 
 void sim_reset_pet(sim_hat_t *s)
@@ -95,7 +99,7 @@ static uint32_t sim_read(gpio_backend_t *b)
     sim_hat_t *s = b->priv;
     s->reads++;
     if (s->on_read) s->on_read(s, s->ctx);
-    return sim_levels(s, NULL);
+    return sim_levels(s, NULL) & s->claimed;
 }
 
 /* Contention is sampled after every change the Pi makes */
@@ -113,6 +117,11 @@ static int sim_claim(gpio_backend_t *b, uint32_t mask)
     s->claimed |= mask;
     sim_levels(s, NULL);
     return 0;
+}
+
+static void sim_claim_inputs(gpio_backend_t *b, uint32_t mask)
+{
+    sim_claim(b, mask & ~((sim_hat_t *)b->priv)->claimed);
 }
 
 static void sim_make_output(gpio_backend_t *b, uint32_t mask)
@@ -154,11 +163,13 @@ gpio_backend_t *gpio_sim_open(void)
         return NULL;
     }
     sim_reset_pet(s);
+    s->claimed = BOOT_CONFIGURED;
     b->name = "sim";
     b->kind = GPIO_BACKEND_SIM;
     b->read = sim_read;
     b->write = sim_write;
     b->claim = sim_claim;
+    b->claim_inputs = sim_claim_inputs;
     b->make_output = sim_make_output;
     b->make_input = sim_make_input;
     b->output_mask = sim_output_mask;
